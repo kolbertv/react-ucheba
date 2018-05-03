@@ -1,20 +1,91 @@
-const path = require('path');
+let path = require('path');
+let webpack = require('webpack');
+let HtmlWebpackPlugin = require('html-webpack-plugin');
+let BrowserSyncPlugin = require('browser-sync-webpack-plugin');
+let CleanWebpackPlugin = require('clean-webpack-plugin');
+let CopyWebpackPlugin = require('copy-webpack-plugin');
 
-module.exports = {
-    entry: path.join(__dirname, 'src', 'index.js'),
+let conf = {
+    entry: {
+        vendors: path.join(__dirname, 'src', 'vendors'),
+        index: path.join(__dirname, 'src', 'index')
+    },
     output: {
         path: path.join(__dirname, 'build'),
-        filename: 'main.js'
+        filename: '[name].js'
     },
 
     module: {
         rules: [
-            { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
-        ]
-    }
+            {
+                test: /\.jsx?$/,
+                exclude: /node_modules|bower_components/,
+                loader: "babel-loader",
+                query: {
+                    presets: [
+                        'react',
+                        'es2015',
+                        'stage-0'
+                    ],
+                    plugins: ['react-html-attrs', 'transform-decorators-legacy']
+                }
+            },
+            {
+                test: /\.css$/,
+                loader: 'style-loader!css-loader',
 
+            },
+            {
+                test: /\.(woff|woff2)$/,
+                loader: "url-loader?limit=10000&mimetype=application/font-woff&name=./fonts/[name].[ext]"
+            },
+            {
+                test: /\.ttf$/,
+                loader: "url-loader?limit=10000&mimetype=application/octet-stream&name=./fonts/[name].[ext]"
+            },
+            {
+                test: /\.eot$/,
+                loader: "url-loader?limit=10000&mimetype=application/octet-stream&name=./fonts/[name].[ext]"
+            },
+            {
+                test: /\.svg$/,
+                loader: "url-loader?limit=10000&mimetype=application/svg+xml&name=./fonts/[name].[ext]"
+            }
+
+        ]
+    },
+    // resolve: {
+    //     extensions: ['.js', '.jsx', '.sass', '.css']
+    // },
+
+    plugins: [
+        // new webpack.NoErrorsPlugin(),
+        new HtmlWebpackPlugin({
+            template: path.join(__dirname, 'src', 'index.html'),
+            filename: path.join(__dirname, 'build', 'index.html')
+        }),
+        new BrowserSyncPlugin({
+            host: 'localhost',
+            port: 3000,
+            server: {
+                baseDir: ['build']
+            }
+        }),
+        new CleanWebpackPlugin(['build']),
+
+    ]
 };
 
+
+module.exports = (env, options) => {
+
+    let production = options.mode === 'production';
+
+    conf.devtool = production ? false : 'eval-sourcemap';
+
+    return conf;
+
+};
 
 
 // const path = require('path');
@@ -27,10 +98,10 @@ module.exports = {
 //
 //
 // let conf = {
-//     entry: './src/index.js',
+//     entry: './src/index.app',
 //     output: {
 //         path: path.resolve(__dirname, "./build/"),
-//         filename: "main.js",
+//         filename: "main.app",
 //         publicPath: "build/"
 //     },
 //     devServer: {
@@ -39,7 +110,7 @@ module.exports = {
 //     module: {
 //         rules: [
 //             {
-//                 test: /\.js$/,
+//                 test: /\.app$/,
 //                 loader: 'babel-loader',
 //                 exclude: '/node_modules/',
 //                 // use: 'jshintLoader'
@@ -66,13 +137,3 @@ module.exports = {
 //
 // };
 //
-// module.exports = (env, options) => {
-//
-//     // let production = options.mode === 'production';
-//     //
-//     // conf.devtool = production ? false:'eval-sourcemap';
-//
-//
-//     return conf;
-//
-// };
