@@ -8,7 +8,7 @@ let CopyWebpackPlugin = require('copy-webpack-plugin');
 let conf = {
     entry: {
         vendors: path.join(__dirname, 'src', 'vendors'),
-        index: path.join(__dirname, 'src', 'index')
+        index: path.join(__dirname, 'src', 'index.jsx')
     },
     output: {
         path: path.join(__dirname, 'build'),
@@ -36,6 +36,11 @@ let conf = {
 
             },
             {
+                test: /\.scss$/,
+                loader: 'style-loader!css-loader!sass-loader',
+
+            },
+            {
                 test: /\.(woff|woff2)$/,
                 loader: "url-loader?limit=10000&mimetype=application/font-woff&name=./fonts/[name].[ext]"
             },
@@ -57,6 +62,11 @@ let conf = {
     // resolve: {
     //     extensions: ['.js', '.jsx', '.sass', '.css']
     // },
+
+    devServer: {
+        overlay: true,
+        contentBase: "./build"
+    },
 
     plugins: [
         // new webpack.NoErrorsPlugin(),
